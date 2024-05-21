@@ -91,10 +91,10 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             # Calculate angle
             left_hip_angle = calculate_angle(left_knee, left_hip, left_shoulder)
             left_knee_angle = calculate_angle(left_hip, left_knee, left_ankle)
-            left_ankle_angle = 180 - calculate_angle(left_foot_index, left_ankle, left_knee)
+            left_ankle_angle = calculate_angle(left_foot_index, left_ankle, left_knee)
             right_hip_angle = calculate_angle(right_knee, right_hip, right_shoulder)
             right_knee_angle = calculate_angle(right_hip, right_knee, right_ankle)
-            right_ankle_angle = 180 - calculate_angle(right_foot_index, right_ankle, right_knee)
+            right_ankle_angle = calculate_angle(right_foot_index, right_ankle, right_knee)
             #print(landmarks)
         except:
             pass
@@ -114,8 +114,8 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
     cap.release()
     cv2.destroyAllWindows()
 
-print(left_ankle, left_hip, left_knee, left_shoulder, right_ankle, right_hip, right_knee, right_shoulder)
-print(left_ankle_angle, right_ankle_angle, left_hip_angle, right_hip_angle, left_knee_angle, right_knee_angle)
+#print(left_ankle, left_hip, left_knee, left_shoulder, right_ankle, right_hip, right_knee, right_shoulder)
+#print(left_ankle_angle, right_ankle_angle, left_hip_angle, right_hip_angle, left_knee_angle, right_knee_angle)
 
 openai.api_key = "KEY_HERE"
 completion = openai.chat.completions.create(
