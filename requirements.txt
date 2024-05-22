@@ -4,3 +4,5 @@ kagglehub
 Flask
 Flask-SocketIO
 numpy
+pandas
+scikit-learn

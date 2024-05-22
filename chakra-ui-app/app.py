@@ -7,6 +7,7 @@ import time
 import threading
 import base64
 import logging
+import pose_evaluation_stuff.pose_evaluation
 
 app = Flask(__name__)
 app.config['DEBUG'] = True  # Enable debug mode
@@ -86,7 +87,7 @@ def start_recording():
         if frame is None:
             continue
 
-        print("ahahahah")
+        # print("ahahahah")
 
         image = cv2_webcam_image
         # image = cv2.imdecode(np.frombuffer(frame, np.uint8), cv2.IMREAD_COLOR)
@@ -115,6 +116,9 @@ def start_recording():
                                   mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2))
         best_frame_bgr = cv2.cvtColor(best_frame_rgb, cv2.COLOR_RGB2BGR)
         cv2.imwrite('deepest_squat.jpg', best_frame_bgr)
+
+        # AI pose evaluation
+        pose_evaluation_stuff.pose_evaluation.evaluate_pose(results)
     else:
         print("Best frame not found")
 
