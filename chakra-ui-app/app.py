@@ -28,6 +28,8 @@ mp_drawing = mp.solutions.drawing_utils
 # Global variables to store the frame and recording status
 frame = None
 recording = False
+cv2_webcam_image = None
+
 
 def calculate_angle(a, b, c):
     a = np.array(a)
@@ -39,8 +41,9 @@ def calculate_angle(a, b, c):
         angle = 360 - angle
     return angle
 
+
 def gen_frames():
-    global frame, recording
+    global frame, recording, cv2_webcam_image
     logger.debug("Generating frames started")
 
     cap = cv2.VideoCapture(0)
@@ -48,6 +51,7 @@ def gen_frames():
         success, frame = cap.read()
         if not success:
             break
+        cv2_webcam_image = frame
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
         results = pose.process(image)
@@ -67,8 +71,9 @@ def gen_frames():
 
     cap.release()
 
+
 def start_recording():
-    global frame, recording
+    global frame, recording, cv2_webcam_image
 
     logger.debug("Recording started")
 
@@ -81,15 +86,20 @@ def start_recording():
         if frame is None:
             continue
 
-        image = cv2.imdecode(np.frombuffer(frame, np.uint8), cv2.IMREAD_COLOR)
+        print("ahahahah")
+
+        image = cv2_webcam_image
+        # image = cv2.imdecode(np.frombuffer(frame, np.uint8), cv2.IMREAD_COLOR)
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image_rgb)
 
         if results.pose_landmarks:
             landmarks = results.pose_landmarks.landmark
             hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
-            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
+                    landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
+                     landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
             angle = calculate_angle(hip, knee, ankle)
 
             if angle < min_angle:
@@ -98,7 +108,7 @@ def start_recording():
                 best_landmarks = results.pose_landmarks
 
     if best_frame is not None:
-        logger.debug("Best frame found")
+        print("Best frame found")
         best_frame_rgb = cv2.cvtColor(best_frame, cv2.COLOR_BGR2RGB)
         mp_drawing.draw_landmarks(best_frame_rgb, best_landmarks, mp_pose.POSE_CONNECTIONS,
                                   mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
@@ -106,7 +116,8 @@ def start_recording():
         best_frame_bgr = cv2.cvtColor(best_frame_rgb, cv2.COLOR_RGB2BGR)
         cv2.imwrite('deepest_squat.jpg', best_frame_bgr)
     else:
-        logger.debug("Best frame not found")
+        print("Best frame not found")
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -115,6 +126,7 @@ def handle_connect():
     thread = threading.Thread(target=gen_frames)
     thread.start()
 
+
 @socketio.on('start_recording')
 def handle_start_recording():
     logger.debug("Recording emit received")
@@ -122,9 +134,11 @@ def handle_start_recording():
     thread = threading.Thread(target=start_recording)
     thread.start()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

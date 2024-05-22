@@ -24,3 +24,6 @@ Thumbs.db
 *.bak
 *.swp
 *.tmp
+
+# Why is this even tracked
+deepest_squat.jpg
