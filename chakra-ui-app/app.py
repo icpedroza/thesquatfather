@@ -147,6 +147,8 @@ def start_recording():
         advice = get_advice(evaluation_results)
         logger.debug(f"Received advice: {advice}")
         socketio.emit('advice', {'advice': advice})
+
+        #text to sound
         textVoice(advice)
     else:
         print("Best frame not found")
