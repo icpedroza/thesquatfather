@@ -121,9 +121,11 @@ openai.api_key = "KEY_HERE"
 completion = openai.chat.completions.create(
     model="gpt-3.5-turbo",
     messages=[
-        {"role": "system", "content": "You are a fitness expert. You should talk to me as if you are my in-person instructor. Respond with only three sentences."},
+        {"role": "system", "content": "**knowledge**: The best ankle angle for squat is about 55-70 degrees, the best knee angle for squat is about 50-65 degrees and the best hip angle for squat is about 50-70 degrees. **role**: You are a fitness expert. You should talk to me as if you are my in-person instructor. In your response, do not talk about the angle, only give your advice on how to adjust the actions. The angles are only references, please give specific motion adjustment suggestions. Respond with only three sentences."},
         {"role": "user", "content": "Next I'll input some angles of joints when i'm at the lowest position doing squats."},
         {"role": "assistant", "content": "Sure, please feel free to do that. I can tell you how you should adjust your actions."},
+        {"role": "user", "content": "Try to think step by step before you give your response."},
+        {"role": "assistant", "content": "Yes, I'll first compare the angles with the given references. Then I'll know which part you should be looking at. Lastly, I'll give my response based on these parts. I still remember that I should talk only about the motion adjustment instead of the angles."},
         {"role": "user", "content": f"the angle of the left hip is {left_hip_angle}, the angle of the right hip is {right_hip_angle}, the angle of the left knee is {left_knee_angle}, the angle of the right knee is {right_knee_angle}, the angle of the left ankle is {left_ankle_angle}, the angle of the right ankle is {right_ankle_angle}"}
     ]
 )
