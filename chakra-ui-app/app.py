@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import cv2
@@ -10,7 +8,7 @@ import threading
 import base64
 import logging
 import pose_evaluation_stuff.pose_evaluation
-from Sound.SoundTracksGeneration import textVoice
+import openai
 
 app = Flask(__name__)
 app.config['DEBUG'] = True  # Enable debug mode
@@ -35,6 +33,9 @@ recording = False
 cv2_webcam_image = None
 
 
+openai.api_key = "KEY_HERE"
+
+
 def calculate_angle(a, b, c):
     a = np.array(a)
     b = np.array(b)
@@ -45,6 +46,21 @@ def calculate_angle(a, b, c):
         angle = 360 - angle
     return angle
 
+def get_advice(evaluation_results):
+    
+    p = evaluation_results
+    print(p)
+    completion = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a fitness expert. You should talk to me as if you are my in-person instructor. Respond with only three sentences."},
+            {"role": "user", "content": "Next I'll input some angles of some joints of me doing squats, and the problem i identified with my actions. I might say 'correct' though"},
+            {"role": "assistant", "content": "Sure, please feel free to do that. I can tell you how you should adjust your actions. if you say 'my problem is correct, go straight to your advice', I'll just say congratulations"},
+            {"role": "user", "content": f"my problem is {p}, go straight to your advice"}
+        ]
+    )
+
+    print(completion.choices[0].message.content)
 
 def gen_frames():
     global frame, recording, cv2_webcam_image
@@ -122,15 +138,15 @@ def start_recording():
 
         # AI pose evaluation
         pose_evaluation_stuff.pose_evaluation.evaluate_pose(results)
+           # AI pose evaluation
+        evaluation_results = pose_evaluation_stuff.pose_evaluation.evaluate_pose(results)
+
+        # Get advice from OpenAI
+        advice = get_advice(evaluation_results)
+        logger.debug(f"Received advice: {advice}")
+        socketio.emit('advice', {'advice': advice})
     else:
         print("Best frame not found")
-
-
-
-
-    #Assume the generated text by ChatGPT is 'output'(String)
-    global output
-    textVoice(output)
 
 
 @socketio.on('connect')
