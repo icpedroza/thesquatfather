@@ -16,9 +16,17 @@ const VideoFeed = () => {
         };
     }, []);
 
+    const handleStartRecording = () => {
+        console.log('Start recording button clicked');
+        socket.emit('start_recording');
+    };
+
     return (
         <div>
             <img src={imageSrc} alt="Video Feed" style={{ width: '100%' }} />
+            <button onClick={handleStartRecording} style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>
+                Start Recording
+            </button>
         </div>
     );
 };
