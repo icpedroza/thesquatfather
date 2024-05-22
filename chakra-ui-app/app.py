@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import cv2
@@ -8,6 +10,7 @@ import threading
 import base64
 import logging
 import pose_evaluation_stuff.pose_evaluation
+from Sound.SoundTracksGeneration import textVoice
 
 app = Flask(__name__)
 app.config['DEBUG'] = True  # Enable debug mode
@@ -121,6 +124,13 @@ def start_recording():
         pose_evaluation_stuff.pose_evaluation.evaluate_pose(results)
     else:
         print("Best frame not found")
+
+
+
+
+    #Assume the generated text by ChatGPT is 'output'(String)
+    global output
+    textVoice(output)
 
 
 @socketio.on('connect')
