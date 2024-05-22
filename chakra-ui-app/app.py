@@ -10,6 +10,8 @@ import logging
 import pose_evaluation_stuff.pose_evaluation
 import openai
 
+from SoundTracksGeneration import textVoice
+
 app = Flask(__name__)
 app.config['DEBUG'] = True  # Enable debug mode
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -60,7 +62,7 @@ def get_advice(evaluation_results):
         ]
     )
 
-    print(completion.choices[0].message.content)
+    return completion.choices[0].message.content
 
 def gen_frames():
     global frame, recording, cv2_webcam_image
@@ -145,6 +147,7 @@ def start_recording():
         advice = get_advice(evaluation_results)
         logger.debug(f"Received advice: {advice}")
         socketio.emit('advice', {'advice': advice})
+        textVoice(advice)
     else:
         print("Best frame not found")
 
