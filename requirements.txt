@@ -1,0 +1,6 @@
+mediapipe
+opencv-python
+kagglehub
+Flask
+Flask-SocketIO
+numpy
